@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Test Checklist</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+<div id="heroBox"><img class="hero" id="hero" alt="Project banner"><div class="hero gen" id="gen" hidden><div><small id="capline">MCV Testing Workspace</small><h2 id="genName"></h2></div></div></div>
+<nav class="projs" id="projs" aria-label="Projects"></nav>
+<header class="top">
+<div class="brand"><img class="logo" id="logo" alt="MCV badge"><div><input class="proj" id="proj" aria-label="Project name"><div class="sub" id="subline">Service checklist, testing notes and bug tracking</div></div></div>
+<div class="acts">
+<details class="menu" id="pmenu"><summary class="btn">Project</summary><div class="pop"><button id="pdup">Duplicate project</button><button id="bset">Set banner image</button><button id="brem">Remove banner</button><button id="pdel">Delete project</button></div></details><input type="file" id="bfile" accept="image/*" hidden>
+<button class="btn" id="dashBtn">Dashboard</button>
+<button class="btn" id="syncBtn">Sync: Off</button>
+<button class="btn" id="custBtn">Customize</button>
+<button class="btn" id="theme">Dark</button>
+<details class="menu" id="menu"><summary class="btn">Export</summary><div class="pop"><button id="expHtml">Summary report (HTML)</button><button id="expCsv">Results and bugs (CSV)</button><button id="expJson">Backup all projects (JSON)</button></div></details>
+<button class="btn" id="imp">Import backup</button><input type="file" id="file" accept=".json,application/json" hidden>
+<button class="btn pri" id="addSvc">+ Add service</button>
+</div>
+</header>
+<section class="kpis" id="kpis"></section>
+<div class="grid">
+<aside class="panel"><div class="ph"><b>Services</b><span class="count" id="cnt"></span></div><input type="search" id="q" placeholder="Search services..." aria-label="Search services"><div id="svcList"></div><p class="hint">Your data is saved in this browser on this device.</p></aside>
+<section class="panel" id="main"></section>
+</div>
+<section id="dash" class="rep" hidden><div class="dh"><h2>Test dashboard</h2><div class="acts"><button class="btn pri" id="dExpHtml">Export dashboard (HTML)</button><button class="btn" id="dExpCsv">Export CSV</button><button class="btn" id="dBack">Back to checklist</button></div></div><div id="dashBody"></div></section>
+</div>
+<dialog id="dlg"><h2>Add service</h2><label for="dn">Service name</label><input type="text" id="dn" placeholder="e.g. Login API"><label for="dd">Description (optional)</label><input type="text" id="dd" placeholder="What this service does"><div class="row"><button class="btn" id="dc">Cancel</button><button class="btn pri" id="dok">Add service</button></div></dialog>
+<dialog id="pdlg"><h2>New project</h2><label for="pn">Project name</label><input type="text" id="pn" placeholder="e.g. Payments Release 2.0"><label style="display:flex;gap:8px;align-items:center;font-weight:400;margin-top:14px"><input type="checkbox" id="pcopy" style="width:auto"> Copy services and checklists from the current project (no bugs or results)</label><div class="row"><button class="btn" id="pc">Cancel</button><button class="btn pri" id="pok">Create project</button></div></dialog>
+<dialog id="sdlg"><h2>Customize</h2><p class="sub" style="margin:0">These settings apply to this project only.</p>
+<label>Background color</label><div class="sw" id="bgsw"></div>
+<div class="row2"><label class="fl">Custom <input type="color" id="bgc" value="#f4f6fa"></label><button class="btn" id="bgup">Upload image</button><button class="btn" id="bgrm">Remove image</button><input type="file" id="bgfile" accept="image/*" hidden></div>
+<label>Profile picture</label>
+<div class="row2"><img id="pprev" class="logo" alt="Profile preview"><button class="btn" id="prup">Upload picture</button><button class="btn" id="prrm">Reset</button><input type="file" id="prfile" accept="image/*" hidden></div>
+<label for="tsub">Subtitle under the project name</label><input type="text" id="tsub" placeholder="Service checklist, testing notes and bug tracking">
+<label for="tcap">Caption on the blue project banner</label><input type="text" id="tcap" placeholder="MCV Testing Workspace">
+<label>Text color (light theme)</label><div class="sw" id="inksw"></div>
+<div class="row2"><label class="fl">Custom <input type="color" id="inkc" value="#16202e"></label></div>
+<label for="tfs">Text size</label><select id="tfs"><option value="">Medium (default)</option><option value="13px">Small</option><option value="16px">Large</option></select>
+<div class="row"><button class="btn" id="sreset">Reset all</button><button class="btn pri" id="sdone">Done</button></div></dialog>
+<input type="file" id="afile" accept="image/*,video/*" multiple hidden>
+<dialog id="vdlg"><div id="vbody"></div><div class="row" style="align-items:center;justify-content:space-between"><span class="sub" id="vname"></span><button class="btn pri" id="vclose">Close</button></div></dialog>
+<dialog id="ydlg"><h2>Google Sheets sync</h2><p class="sub" style="margin:0">Share projects with your team through a Google Sheet. Setup steps are in README.md.</p>
+<label for="yurl">Web App URL</label><input type="text" id="yurl" placeholder="https://script.google.com/macros/s/.../exec">
+<label for="ykey">Access key</label><input type="text" id="ykey" placeholder="The key you set in the script">
+<label style="display:flex;gap:8px;align-items:center;font-weight:400;margin-top:14px"><input type="checkbox" id="yon" style="width:auto"> Turn on sync</label>
+<p class="sub" id="ymsg"></p>
+<div class="row"><button class="btn" id="ytest">Test connection</button><button class="btn" id="yclose">Close</button><button class="btn pri" id="ysave">Save and sync</button></div></dialog>
+<dialog id="cdlg"><h2>Please confirm</h2><p id="cmsg"></p><div class="row"><button class="btn" id="cno">Cancel</button><button class="btn danger" id="cok">Delete</button></div></dialog>
+<div class="toast" id="toast"></div>
+<script src="js/assets.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
