@@ -16,7 +16,7 @@
 <div class="acts">
 <details class="menu" id="pmenu"><summary class="btn">Project</summary><div class="pop"><button id="pdup">Duplicate project</button><button id="bset">Set banner image</button><button id="brem">Remove banner</button><button id="pdel">Delete project</button></div></details><input type="file" id="bfile" accept="image/*" hidden>
 <button class="btn" id="dashBtn">Dashboard</button>
-<button class="btn" id="syncBtn">Sync: Off</button>
+<button class="btn" id="syncBtn">Excel: Setup needed</button>
 <button class="btn" id="custBtn">Customize</button>
 <button class="btn" id="theme">Dark</button>
 <details class="menu" id="menu"><summary class="btn">Export</summary><div class="pop"><button id="expHtml">Summary report (HTML)</button><button id="expCsv">Results and bugs (CSV)</button><button id="expJson">Backup all projects (JSON)</button></div></details>
@@ -46,15 +46,18 @@
 <div class="row"><button class="btn" id="sreset">Reset all</button><button class="btn pri" id="sdone">Done</button></div></dialog>
 <input type="file" id="afile" accept="image/*,video/*" multiple hidden>
 <dialog id="vdlg"><div id="vbody"></div><div class="row" style="align-items:center;justify-content:space-between"><span class="sub" id="vname"></span><button class="btn pri" id="vclose">Close</button></div></dialog>
-<dialog id="ydlg"><h2>Google Sheets sync</h2><p class="sub" style="margin:0">Share projects with your team through a Google Sheet. Setup steps are in README.md.</p>
-<label for="yurl">Web App URL</label><input type="text" id="yurl" placeholder="https://script.google.com/macros/s/.../exec">
-<label for="ykey">Access key</label><input type="text" id="ykey" placeholder="The key you set in the script">
-<label style="display:flex;gap:8px;align-items:center;font-weight:400;margin-top:14px"><input type="checkbox" id="yon" style="width:auto"> Turn on sync</label>
+<dialog id="ydlg"><h2>Excel workbook database</h2><p class="sub" style="margin:0">Connect a workbook in OneDrive for Business or SharePoint. Setup instructions are in README.md.</p>
+<label for="ytenant">Microsoft tenant ID</label><input type="text" id="ytenant" placeholder="Tenant ID or verified tenant domain">
+<label for="yclient">Microsoft app client ID</label><input type="text" id="yclient" placeholder="App registration client ID">
+<label for="yfile">Workbook path in your OneDrive root</label><input type="text" id="yfile" placeholder="IServe/IServe.xlsx">
+<p class="sub">The workbook needs an Excel table named <b>AppData</b> with columns: RecordKey, ProjectId, RecordType, ParentId, Position, Payload.</p>
 <p class="sub" id="ymsg"></p>
-<div class="row"><button class="btn" id="ytest">Test connection</button><button class="btn" id="yclose">Close</button><button class="btn pri" id="ysave">Save and sync</button></div></dialog>
+<div class="row"><button class="btn" id="ytest">Sign in and connect</button><button class="btn" id="yclose">Close</button><button class="btn pri" id="ysave">Save settings and load</button></div></dialog>
 <dialog id="cdlg"><h2>Please confirm</h2><p id="cmsg"></p><div class="row"><button class="btn" id="cno">Cancel</button><button class="btn danger" id="cok">Delete</button></div></dialog>
 <div class="toast" id="toast"></div>
 <script src="js/assets.js"></script>
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<script src="js/excel-db.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

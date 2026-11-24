@@ -7,7 +7,7 @@ try{meta=Object.assign(meta,JSON.parse(localStorage.getItem(MK)||"{}"))}catch(e)
 if(meta.name==="Test checklist")meta.name="IServe Migration";
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-function save(){try{var p=act();if(p){p.services=data;var sg=projSig(p);if(sg!==p.sig){p.sig=sg;p.dirty=true}}localStorage.setItem(SK2,JSON.stringify(store));sched();return true}catch(e){return false}}
+function save(){try{var p=act();if(p)p.services=data;localStorage.setItem(SK2,JSON.stringify(store));excelSched();return true}catch(e){return false}}
 function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},2200)}
 function ob(s){return s.bugs.filter(function(b){return!b.fixed}).length}
 function cd(s){return s.checks.filter(function(c){return c.done}).length}
@@ -282,4 +282,44 @@ document.addEventListener("visibilitychange",function(){if(!document.hidden)runS
 setSt(sync.on?"Synced":"Off");
 renderProjects();renderHero();renderAll();
 if(sync.on)runSync();
+// Excel is the shared source of truth. localStorage remains a temporary UI cache.
+sync.on=false;
+try{localStorage.removeItem("tc-sync-v1")}catch(e){}
+var excelTimer=null,excelBusy=false,excelEdit=0,excelSaved=0,excelReady=false;
+function setSt(s){$("syncBtn").textContent="Excel: "+s}
+function excelSched(){
+ excelEdit++;
+ if(!ExcelDB.ready()){setSt("Setup needed");return}
+ clearTimeout(excelTimer);excelTimer=setTimeout(function(){saveExcelQueue()},650)
+}
+function saveExcelQueue(){
+ if(excelBusy)return;
+ excelBusy=true;var sent=excelEdit;setSt("Saving…");
+ ExcelDB.save(store).then(function(){excelSaved=sent;setSt("Saved")},function(e){$("ymsg").textContent="Excel save failed: "+e.message;setSt("Error")}).then(function(){
+  excelBusy=false;if(excelEdit>excelSaved){clearTimeout(excelTimer);excelTimer=setTimeout(saveExcelQueue,200)}
+ })
+}
+function fillExcelConfig(){var c=ExcelDB.getConfig();$("ytenant").value=c.tenantId||"";$("yclient").value=c.clientId||"";$("yfile").value=c.path||""}
+function setExcelConfig(){return ExcelDB.config({tenantId:$("ytenant").value.trim(),clientId:$("yclient").value.trim(),path:$("yfile").value.trim()})}
+async function loadExcel(interactive){
+ if(!ExcelDB.ready()){setSt("Setup needed");return false}
+ try{
+  if(interactive)await ExcelDB.signIn();
+  setSt("Loading…");var remote=await ExcelDB.load();
+  if(remote.projects.length){
+   var localAtts={};store.projects.forEach(function(p){(p.services||[]).forEach(function(s){(s.bugs||[]).forEach(function(b){if(b.atts&&b.atts.length)localAtts[b.id]=b.atts})})});
+   remote.projects.forEach(function(p){p.services.forEach(function(s){fix(s);s.bugs.forEach(function(b){if(localAtts[b.id])b.atts=localAtts[b.id]})})});
+   store=remote;bind();try{localStorage.setItem(SK2,JSON.stringify(store))}catch(e){}
+   if(!store.projects.some(function(p){return p.id===store.active}))store.active=store.projects[0].id;
+   bind();if(document.activeElement!==$("proj"))$("proj").value=meta.name;logo();applyPrefs();renderProjects();renderHero();renderAll();excelReady=true;excelEdit=excelSaved;setSt("Connected");return true;
+  }
+  excelReady=true;await ExcelDB.save(store);excelEdit=excelSaved;setSt("Saved");return true;
+ }catch(e){excelReady=false;setSt("Error");$("ymsg").textContent="Excel connection failed: "+e.message;return false}
+}
+$("syncBtn").onclick=function(){fillExcelConfig();$("ymsg").textContent="";$("ydlg").showModal()};
+$("yclose").onclick=function(){$("ydlg").close()};
+$("ytest").onclick=function(){setExcelConfig();$("ymsg").textContent="Signing in and connecting...";loadExcel(true).then(function(ok){if(ok)$("ymsg").textContent="Connected to the Excel workbook."})};
+$("ysave").onclick=function(){setExcelConfig();$("ymsg").textContent="Settings saved. Select Sign in and connect to load the workbook.";loadExcel(false)};
+fillExcelConfig();
+if(ExcelDB.ready())loadExcel(false);else setSt("Setup needed");
 })();
